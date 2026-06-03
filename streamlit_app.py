@@ -3,6 +3,7 @@ from pathlib import Path
 import sqlite3
 import numpy as np
 import torch
+import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from datetime import datetime
 
@@ -117,6 +118,8 @@ if predict_pressed:
                 start_t = datetime.utcnow()
                 with torch.no_grad():
                     pred_tensor, agg_tensor = model(batch)
+                    # ensure non-negative sales by applying softplus (matches training loss)
+                    pred_tensor = F.softplus(pred_tensor)
                 pred = pred_tensor.cpu().numpy()[0]
                 agg = agg_tensor.cpu().numpy()[0]
                 end_t = datetime.utcnow()
